@@ -1,0 +1,6 @@
+{
+  "navigationBarTitleText": "uni-app",
+  "usingComponents": {
+    "link-address": "/components/xuan-linkAddress/xuan-linkAddress"
+  }
+}
