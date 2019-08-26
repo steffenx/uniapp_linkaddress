@@ -5,7 +5,6 @@
 		<view>{{address}}</view>
 		<linkAddress
 			ref="linkAddress"
-			:active="active"
 			:height="height"
 			@confirmCallback="confirmCallback()"
 		>
@@ -21,9 +20,7 @@
 		},
 		data() {
 			return {
-				active: false,
 				height: '500px',
-				popupId: 0,
 				address:''
 			}
 		},

@@ -12,56 +12,20 @@
 					</view>
 					<view class="operation-wrap">
 						<view class="operation-container">
-							<view class="operation-content">
+							<view class="operation-content" v-for="(base_items,base_index) of linkAddress_area">
 								<scroll-view
 									scroll-y="true"
 									class="province"
 									show-scrollbar="false">
 									<view 
-										:class="{'province-txt':index!==province_current,'province-txt-click':index===province_current}"  
-										@click="province_txt_click(items.id)" 
+										@click="choosefun(base_items.clickfun,items.id)" 
 										v-model="items.id" 
-										v-for="(items , index) of linkAddress_province"
+										v-for="(items , index) of base_items.info"
+										:class="[index==base_items.current ? 'province-txt-click' : 'province-txt']" 
 										>
 											{{items.name}}
-											<view class="pic" v-show="index===province_current">
-												<image src="../../static/yes.png"></image>
-											</view>
-									</view>
-								</scroll-view>
-							</view>
-							<view class="operation-content">
-								<scroll-view
-									scroll-y="true"
-									class="province"
-									show-scrollbar="false">
-									<view 
-										:class="{'province-txt':index!==city_current,'province-txt-click':index===city_current}"  
-										@click="city_txt_click(items.id)" 
-										v-model="items.id" 
-										v-for="(items , index) of linkAddress_city"
-										>
-											{{items.name}}
-											<view class="pic" v-show="index===city_current">
-												<image src="../../static/yes.png"></image>
-											</view>
-									</view>
-								</scroll-view>
-							</view>
-							<view class="operation-content">
-								<scroll-view
-									scroll-y="true"
-									class="province"
-									show-scrollbar="false">
-									<view 
-										:class="{'province-txt':index!==district_current,'province-txt-click':index===district_current}"  
-										@click="district_txt_click(items.id)" 
-										v-model="items.id" 
-										v-for="(items , index) of linkAddress_district"
-										>
-											{{items.name}}
-											<view class="pic" v-show="index===district_current">
-												<image src="../../static/yes.png"></image>
+											<view class="pic" v-show="index===base_items.current">
+												<image src="../../static/xuan-linkAddress/yes.png"></image>
 											</view>
 									</view>
 								</scroll-view>
@@ -76,23 +40,30 @@
 </template>
 
 <script>
-	import linkAddress_p from '../../static/js/get_linkAddress_p.js'
+	import linkAddress_p from '../../static/xuan-linkAddress/get_linkAddress_p.js'
 	export default{
 		data(){
 			return{
 				newActive:"",
 				newTransition:true,
-				
-				/*省市区选择计数*/
-				province_current:null,
-				city_current:null,
-				district_current:null,
-				
-				/*省市区循环数据*/
-				linkAddress_province: [],
-				linkAddress_city: [],
-				linkAddress_district: [],
-				
+				//省0市1区2
+				linkAddress_area:[
+					{
+						current:null,
+						info: [],
+						clickfun:'province_txt_click'
+					},
+					{
+						current:null,
+						info: [],
+						clickfun:'city_txt_click'
+					},
+					{
+						current:null,
+						info: [],
+						clickfun:'district_txt_click'
+					}
+				],
 				/*请求提交的*/
 				submission:{
 					province:'',//省
@@ -136,19 +107,13 @@
 					
 				}
 			},
-			/*点击按钮的文字内容*/
-			content:{
-				type:String,
-				value:"请选择"
-			},
 		},
 		computed:{
 			popuplayoutClass:function(){
 				let _class="";
 				if(this.newActive){
 					_class+="popup-layout-active";
-				}
-				
+				}	
 				_class+=" popup-layout-bottom";
 				return _class;
 			},
@@ -195,21 +160,23 @@
 				}
 					
 			},
-			
+			//选择点击事件
+			choosefun(targetfun,targetid){
+				this[targetfun](targetid);
+			},
 			//省点击选择
 			province_txt_click(target){
-				//区数据值为空
-				this.linkAddress_district= [];
+				//区数据置为空
+				this.linkAddress_area[2].info= [];
 				//市、区的选择计数置为null
-				this.city_current=null;
-				this.district_current=null;
-				
+				this.linkAddress_area[1].current=null;
+				this.linkAddress_area[2].current=null;
 				let province;
 				//得到点击的数据，改变样式
-				for (let i = 0; i < this.linkAddress_province.length; i++) {
-					if (this.linkAddress_province[i].id === target) {
-						this.province_current = i;
-						province=this.linkAddress_province[i].name;
+				for (let i = 0; i < this.linkAddress_area[0].info.length; i++) {
+					if (this.linkAddress_area[0].info[i].id === target) {
+						this.linkAddress_area[0].current = i;
+						province=this.linkAddress_area[0].info[i].name;
 						break;
 					}
 				}
@@ -238,13 +205,13 @@
 			//市点击选择
 			city_txt_click(target){
 				//区的选择计数置为null
-				this.district_current=null;
+				this.linkAddress_area[2].current=null;
 				let city;
 				//得到点击的数据，改变样式
-				for (let i = 0; i < this.linkAddress_city.length; i++) {
-					if (this.linkAddress_city[i].id === target) {
-						this.city_current = i;
-						city=this.linkAddress_city[i].name;
+				for (let i = 0; i < this.linkAddress_area[1].info.length; i++) {
+					if (this.linkAddress_area[1].info[i].id === target) {
+						this.linkAddress_area[1].current = i;
+						city=this.linkAddress_area[1].info[i].name;
 						break;
 					}
 				}
@@ -261,13 +228,15 @@
 					
 				});
 			},
+			//区点击选择
 			district_txt_click(target){
 				let district;
 				//得到点击的数据，改变样式
-				for (let i = 0; i < this.linkAddress_district.length; i++) {
-					if (this.linkAddress_district[i].id === target) {
-						this.district_current = i;
-						district=this.linkAddress_district[i].name;
+				for (let i = 0; i < this.linkAddress_area[2].info.length; i++) {
+					if (this.linkAddress_area[2].info[i].id === target) {
+						// this.district_current = i;
+						this.linkAddress_area[2].current = i;
+						district=this.linkAddress_area[2].info[i].name;
 						break;
 					}
 				}
@@ -278,7 +247,6 @@
 			
 			//取消按钮
 			btn_cancel:function(){
-				
 				this.close();
 				
 				//全部置为空
@@ -288,11 +256,11 @@
 					county:'',
 					town:''
 				}
-				this.linkAddress_city= [];
-				this.linkAddress_district= [];
-				this.province_current=null;
-				this.city_current=null;
-				this.district_current=null;
+				this.linkAddress_area[1].info= [];
+				this.linkAddress_area[2].info= [];
+				this.linkAddress_area[0].current=null;
+				this.linkAddress_area[1].current=null;
+				this.linkAddress_area[2].current=null;
 				this.selected_address='';
 			},
 			//确定按钮
@@ -364,7 +332,6 @@
 			background-color: rgba(#000, 0.6);
 		}
 	}
-	
 	/***省市区选择器***/
 	.link-address-wrap{
 		height: 100%;
@@ -400,13 +367,6 @@
 					display: flex;
 					flex-direction: column;
 					width: 33.333%;
-					::-webkit-scrollbar {  
-						display: none;  
-						width: 0 !important;  
-						height: 0 !important;  
-						-webkit-appearance: none;  
-						background: transparent;  
-					}  
 					.province{
 						//scroll-view区域的固定高度
 						height: 420rpx;

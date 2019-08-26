@@ -1,4 +1,4 @@
-import api from '@/api/api.js';
+import api from '@/components/xuan-linkAddress/api.js';
 
 export default {
 	/*
@@ -14,17 +14,17 @@ export default {
 			if(res.data.code==1){
 				if(tag==="province"){	
 					console.log("province")
-					_this.linkAddress_province=revert;
+					_this.linkAddress_area[0].info=revert;
 					callback(true);//回掉
 				}
 				if(tag==="city"){
 					console.log("city")
-					_this.linkAddress_city=revert;
+					_this.linkAddress_area[1].info=revert;
 					callback(true);//回掉
 				}
 				if(tag==="district"){
 					console.log("district")
-					_this.linkAddress_district=revert;
+					_this.linkAddress_area[2].info=revert;
 					callback(true);//回掉
 				}
 			}
